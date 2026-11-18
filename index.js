@@ -15,16 +15,19 @@ app.get("/", (req, res) => {
 
 app.post("/api/chat", async (req, res) => {
     try {
-        const { message } = req.body.message;
+        let messages = req.body.messages || req.body.message;
+        if (messages && !Array.isArray(messages) && Array.isArray(messages.message)) {
+            messages = messages.message;
+        }
 
-        if (!message || !Array.isArray(message)) {
+        if (!messages || !Array.isArray(messages)) {
             return res.status(400).json({ 
                 error: "Messages harus berupa array" 
             });
         }
 
         const response = await fetch(
-            "https://api.openrouter.ai/v1/chat/completions", 
+            "https://openrouter.ai/api/v1/chat/completions", 
             {
                 method: "POST",
 
@@ -34,8 +37,8 @@ app.post("/api/chat", async (req, res) => {
                 },
 
                 body: JSON.stringify({
-                    model: "nvidia/nemotron-3.5-super-v1:free",
-                    messages: message,
+                    model: "nvidia/nemotron-3.5-super-vl:free",
+                    messages: messages,
                     temperature: 0.7,
                     max_tokens: 1000,
                     stream: true
@@ -83,15 +86,15 @@ app.post("/api/chat", async (req, res) => {
 
                 const trimmedLine = line.trim();
 
-                if (trimmedLine) {
+                if (!trimmedLine) {
                     continue;
                 }
 
-                if (trimmedLine.startsWith("data: ")) {
+                if (!trimmedLine.startsWith("data: ")) {
                     continue;
                 }
 
-                const data = trimmedLine.slice(5).trim();
+                const data = trimmedLine.slice(6).trim();
 
                 if (data === "[DONE]") {
                     continue;
@@ -105,13 +108,13 @@ app.post("/api/chat", async (req, res) => {
                         json.choices?.[0]?.delta?.content;
 
                     if (content) {
-                        res.write(`data: ${JSON.stringify(content )}\n\n`);
+                        res.write(`data: ${JSON.stringify(content)}\n\n`);
                     }
 
                 } catch (err) {
                     console.error(
                         "Gagal parsing streaming data:", 
-                        error
+                        err
                     );
                 }
             }

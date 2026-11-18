@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI ChatBot 122 - Asisten Cerdas Interaktif</title>
+  
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2zM7.5 13a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Highlight.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+  <div class="app-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">
+            <i class="fa-solid fa-robot"></i>
+            <span class="status-dot-pulse"></span>
+          </div>
+          <div class="brand-text">
+            <h2>ChatBot <span>122</span></h2>
+            <p>AI Assistant</p>
+          </div>
+        </div>
+        <button class="icon-btn close-sidebar-btn" id="closeSidebarBtn" title="Tutup Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Action Button: New Chat -->
+      <div class="sidebar-action">
+        <button class="new-chat-btn" id="newChatBtn">
+          <i class="fa-solid fa-plus"></i>
+          <span>Percakapan Baru</span>
+          <span class="shortcut-tag">Ctrl+K</span>
+        </button>
+      </div>
+
+      <!-- Search in History -->
+      <div class="search-history-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchHistoryInput" placeholder="Cari percakapan..." autocomplete="off">
+        <button class="clear-search-btn" id="clearSearchBtn" title="Reset pencarian" style="display: none;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Chat History List -->
+      <div class="history-section">
+        <div class="history-label">
+          <span>Riwayat Chat</span>
+          <span class="chat-count-badge" id="chatCountBadge">0</span>
+        </div>
+        <div class="history-list" id="historyList">
+          <!-- Item riwayat akan dimasukkan via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="model-badge" title="Model AI Aktif">
+          <div class="model-indicator"></div>
+          <div class="model-info">
+            <span class="model-name">Nemotron 3.5</span>
+            <span class="model-provider">OpenRouter API</span>
+          </div>
+        </div>
+
+        <div class="footer-controls">
+          <button class="control-btn" id="themeToggleBtn" title="Ganti Mode Terang / Gelap">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="control-btn" id="soundToggleBtn" title="Aktifkan / Matikan Suara Efek">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+          <button class="control-btn" id="infoBtn" title="Info & Panduan Penggunaan">
+            <i class="fa-solid fa-circle-question"></i>
+          </button>
+          <button class="control-btn danger-hover" id="clearAllBtn" title="Hapus Semua Riwayat Chat">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Overlay backdrop for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN CHAT CONTAINER -->
+    <main class="main-chat">
+      
+      <!-- Top Navigation Bar -->
+      <header class="top-nav">
+        <div class="nav-left">
+          <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" title="Buka Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="chat-title-group">
+            <h1 class="chat-title" id="currentChatTitle">Percakapan Baru</h1>
+            <div class="chat-status" id="chatStatus">
+              <span class="status-indicator"></span>
+              <span class="status-text">Siap membantu Anda</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <button class="nav-btn" id="exportChatBtn" title="Ekspor Chat ke Markdown">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span class="btn-text">Ekspor</span>
+          </button>
+          <button class="nav-btn" id="clearCurrentChatBtn" title="Bersihkan Pesan di Chat Ini">
+            <i class="fa-solid fa-broom"></i>
+            <span class="btn-text">Bersihkan</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Scroll Area -->
+      <div class="messages-viewport" id="messagesViewport">
+        
+        <!-- Welcome Screen (Shown when chat is empty) -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon-wrapper">
+            <div class="welcome-icon-glow"></div>
+            <div class="welcome-icon">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+          </div>
+
+          <h2 class="welcome-title">Halo! Ada yang bisa saya bantu?</h2>
+          <p class="welcome-desc">
+            Asisten cerdas berbasis AI siap membantu Anda menjawab pertanyaan, menulis kode, memecahkan masalah, atau mencari ide kreatif.
+          </p>
+
+          <!-- Suggestion Cards Grid -->
+          <div class="suggestions-grid">
+            <div class="suggestion-card" data-prompt="Jelaskan cara kerja Server-Sent Events (SSE) dan streaming data pada aplikasi web!">
+              <div class="card-icon" style="--card-color: #6366f1;">
+                <i class="fa-solid fa-bolt"></i>
+              </div>
+              <div class="card-content">
+                <h4>Streaming Data SSE</h4>
+                <p>Bagaimana Server-Sent Events bekerja untuk streaming response</p>
+              </div>
+              <div class="card-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </div>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Bantu saya membuat fungsi JavaScript untuk debounce dan throttle beserta contoh kasus penggunaannya.">
+              <div class="card-icon" style="--card-color: #10b981;">
+                <i class="fa-solid fa-code"></i>
+              </div>
+              <div class="card-content">
+                <h4>Koding & Algoritma</h4>
+                <p>Buatkan fungsi debounce dan throttle di JavaScript</p>
+              </div>
+              <div class="card-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </div>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Berikan 5 ide proyek menarik untuk portofolio web developer dengan teknologi modern.">
+              <div class="card-icon" style="--card-color: #f59e0b;">
+                <i class="fa-solid fa-lightbulb"></i>
+              </div>
+              <div class="card-content">
+                <h4>Ide Proyek Portofolio</h4>
+                <p>5 inspirasi proyek web modern untuk meningkatkan skill</p>
+              </div>
+              <div class="card-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </div>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Buatkan draf email profesional untuk mengajukan izin tidak hadir kuliah/kerja karena urusan penting.">
+              <div class="card-icon" style="--card-color: #ec4899;">
+                <i class="fa-solid fa-pen-nib"></i>
+              </div>
+              <div class="card-content">
+                <h4>Draf Email Formal</h4>
+                <p>Format email pengajuan izin yang sopan dan profesional</p>
+              </div>
+              <div class="card-arrow">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="messages-container" id="messagesContainer">
+          <!-- Chat bubbles will be rendered dynamically here -->
+        </div>
+
+        <!-- Typing Indicator Wave -->
+        <div class="typing-indicator-row" id="typingIndicator" style="display: none;">
+          <div class="bot-avatar-bubble">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="typing-bubble">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-label">AI sedang berpikir...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Controls -->
+      <div class="floating-controls">
+        <button class="stop-generating-btn" id="stopGeneratingBtn" style="display: none;">
+          <i class="fa-solid fa-circle-stop"></i>
+          <span>Hentikan Respon</span>
+        </button>
+        <button class="scroll-bottom-btn" id="scrollBottomBtn" style="display: none;" title="Gulir ke Pesan Terbaru">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+      </div>
+
+      <!-- Chat Input Area -->
+      <footer class="chat-input-area">
+        <div class="input-container-glass">
+          
+          <!-- Voice Input Button -->
+          <button class="input-tool-btn" id="voiceInputBtn" title="Input Suara (Bicara langsung)">
+            <i class="fa-solid fa-microphone"></i>
+            <span class="voice-pulse-ring"></span>
+          </button>
+
+          <!-- Textarea Input -->
+          <div class="textarea-wrapper">
+            <textarea 
+              id="userInput" 
+              placeholder="Ketik pesan Anda di sini... (Shift + Enter untuk baris baru)" 
+              rows="1" 
+              maxlength="4000"
+            ></textarea>
+          </div>
+
+          <!-- Character Counter & Input Actions -->
+          <div class="input-actions-right">
+            <span class="char-count" id="charCount">0/4000</span>
+            <button class="send-message-btn" id="sendBtn" title="Kirim Pesan (Enter)" disabled>
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-footer-note">
+          <span>AI dapat membuat kekeliruan. Selalu periksa kembali informasi penting.</span>
+        </div>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL: INFO & PANDUAN PENGGUNAAN -->
+  <div class="modal-backdrop" id="infoModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-circle-info"></i>
+          <h3>Tentang AI ChatBot 122</h3>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeInfoModalBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section">
+          <h4><i class="fa-solid fa-microchip"></i> Arsitektur Sistem</h4>
+          <p>
+            Aplikasi ini terhubung langsung ke backend server lokal melalui endpoint <code>/api/chat</code> dan memanfaatkan streaming real-time (Server-Sent Events) untuk menampilkan respon secara langsung.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h4><i class="fa-solid fa-keyboard"></i> Pintasan Tombol (Shortcuts)</h4>
+          <ul class="shortcut-list">
+            <li><kbd>Enter</kbd> : Mengirim pesan</li>
+            <li><kbd>Shift</kbd> + <kbd>Enter</kbd> : Menambahkan baris baru</li>
+            <li><kbd>Ctrl</kbd> + <kbd>K</kbd> : Membuka percakapan baru</li>
+            <li><kbd>Esc</kbd> : Menutup jendela dialog / modal</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4><i class="fa-solid fa-sparkles"></i> Fitur Interaktif Unggulan</h4>
+          <div class="features-tags">
+            <span class="tag"><i class="fa-solid fa-bolt"></i> Real-time SSE Streaming</span>
+            <span class="tag"><i class="fa-solid fa-microphone"></i> Voice Input (Speech to Text)</span>
+            <span class="tag"><i class="fa-solid fa-volume-high"></i> Text to Speech (Dengar Respon)</span>
+            <span class="tag"><i class="fa-solid fa-code"></i> Syntax Highlighting & Salin Kode</span>
+            <span class="tag"><i class="fa-solid fa-file-export"></i> Ekspor ke Markdown (.md)</span>
+            <span class="tag"><i class="fa-solid fa-box-archive"></i> Riwayat Lokal (Auto-Save)</span>
+            <span class="tag"><i class="fa-solid fa-moon"></i> Tema Gelap & Terang</span>
+            <span class="tag"><i class="fa-solid fa-music"></i> Sound Feedback Sintesis</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="confirmInfoModalBtn">Mengerti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KONFIRMASI HAPUS -->
+  <div class="modal-backdrop" id="confirmModal" style="display: none;">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <div class="modal-title text-danger">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <h3 id="confirmModalTitle">Hapus Percakapan</h3>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeConfirmModalBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage">Apakah Anda yakin ingin menghapus seluruh riwayat percakapan? Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelConfirmBtn">Batal</button>
+        <button class="btn btn-danger" id="executeConfirmBtn">Hapus Sekarang</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main Application Script -->
+  <script src="script.js"></script>
+</body>
+</html>

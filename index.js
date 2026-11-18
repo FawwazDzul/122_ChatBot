@@ -131,7 +131,7 @@ app.post("/api/chat", async (req, res) => {
         } else {
             res.write(
                 `data: ${JSON.stringify(
-                error: "Terjadi kesalahan pada server"
+                    "Terjadi kesalahan pada server"
                 )}\n\n`
             );
 
